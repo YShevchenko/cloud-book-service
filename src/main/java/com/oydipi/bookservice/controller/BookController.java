@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RestController
@@ -21,9 +22,13 @@ public class BookController {
             ));
 
     @GetMapping
-    public List<Book> getBooks() {
-        log.info("All books fetched");
-        return books;
+    public List<Book> getBooks(@RequestParam(required = false, defaultValue = "") String author,
+                               @RequestParam(required = false, defaultValue = "") String title) {
+        log.info("Books fetched by author {} and title {}", author, title);
+        return books.stream()
+                .filter("" .equals(author) ? b -> true : b -> b.getAuthor().equals(author))
+                .filter("" .equals(title) ? b -> true : b -> b.getTitle().equals(title))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{bookId}")
